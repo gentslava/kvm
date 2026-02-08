@@ -16,7 +16,7 @@ Welcome to JetKVM development! This guide will help you get started quickly, whe
 ### Prerequisites
 
 - **A JetKVM device** (for full development)
-- **[Go 1.24.4+](https://go.dev/doc/install)** and **[Node.js 22.15.0](https://nodejs.org/en/download/)**
+- **[Go 1.24.4+](https://go.dev/doc/install)** and **[Node.js 22.21.1](https://nodejs.org/en/download/)**
 - **[Git](https://git-scm.com/downloads)** for version control
 - **[SSH access](https://jetkvm.com/docs/advanced-usage/developing#developer-mode)** to your JetKVM device
 
@@ -89,7 +89,7 @@ Now edit files in `ui/src/` and see changes live in your browser!
 
 ```bash
 ssh root@192.168.1.100
-tail -f /var/log/jetkvm.log
+tail -f /userdata/jetkvm/last.log
 ```
 
 ---
@@ -199,11 +199,11 @@ ssh root@192.168.1.100 ps aux | grep jetkvm
 
 ### View live logs
 
-The file `/var/log/jetkvm*` contains the JetKVM logs. You can view live logs with:
+The file `/userdata/jetkvm/last.log` contains the JetKVM logs. You can view live logs with:
 
 ```bash
 ssh root@192.168.1.100
-tail -f /var/log/jetkvm*
+tail -f /userdata/jetkvm/last.log
 ```
 
 ### Reset everything (if stuck)
@@ -229,7 +229,7 @@ The code and GDB server will be deployed automatically.
 1. Deploy your changes: `./dev_deploy.sh -r <IP>`
 2. Open browser: `http://<IP>`
 3. Test your feature
-4. Check logs: `ssh root@<IP> tail -f /var/log/jetkvm.log`
+4. Check logs: `ssh root@<IP> tail -f /userdata/jetkvm/last.log`
 
 ### Automated Testing
 
@@ -409,7 +409,7 @@ export JETKVM_PROXY_URL="ws://<IP>"
 
 ## Need Help?
 
-1. **Check logs first:** `ssh root@<IP> tail -f /var/log/jetkvm.log`
+1. **Check logs first:** `ssh root@<IP> tail -f /userdata/jetkvm/last.log`
 2. **Search issues:** [GitHub Issues](https://github.com/jetkvm/kvm/issues)
 3. **Ask on Discord:** [JetKVM Discord](https://jetkvm.com/discord)
 4. **Read docs:** [JetKVM Documentation](https://jetkvm.com/docs)
