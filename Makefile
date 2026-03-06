@@ -72,7 +72,7 @@ check_signing_key:
 		exit 1; \
 	}
 
-# E2E tests - normal development lane (core tests + unsigned OTA, no signing key needed)
+# E2E tests - normal development lane (core tests + prerelease unsigned OTA, no signing key needed)
 test_e2e: frontend
 	@if [ -z "$(DEVICE_IP)" ]; then \
 		echo "Error: DEVICE_IP is required"; \
@@ -80,12 +80,12 @@ test_e2e: frontend
 		exit 1; \
 	fi
 	$(eval TEST_VERSION := $(VERSION)-dev$(shell date -u +%Y%m%d%H%M))
-	$(MAKE) build_dev VERSION_DEV=0.0.1-test-baseline SKIP_NATIVE_IF_EXISTS=1 SKIP_UI_BUILD=1
+	$(MAKE) build_dev VERSION_DEV=0.0.1-test-baseline SKIP_UI_BUILD=1
 	mv bin/jetkvm_app bin/jetkvm_app_baseline
-	$(MAKE) build_dev VERSION_DEV=$(TEST_VERSION) SKIP_NATIVE_IF_EXISTS=1 SKIP_UI_BUILD=1
+	$(MAKE) build_dev VERSION_DEV=$(TEST_VERSION) SKIP_UI_BUILD=1
 	cd ui && npm ci && npx playwright install chromium && cd ..
 	./scripts/test_core_e2e.sh "$(DEVICE_IP)" "bin/jetkvm_app"
-	./scripts/test_unsigned_specific_ota.sh "$(DEVICE_IP)" \
+	./scripts/test_prerelease_unsigned_ota.sh "$(DEVICE_IP)" \
 		"bin/jetkvm_app_baseline" \
 		"bin/jetkvm_app" \
 		"$(TEST_VERSION)"
@@ -243,11 +243,17 @@ dev_release: git_check_dev check_r2
 	@echo "  Signing: disabled for dev releases"
 	@echo "═══════════════════════════════════════════════════════"
 	@read -p "Proceed? [y/N] " confirm && [ "$$confirm" = "y" ] || exit 1
-	$(MAKE) check frontend build_dev VERSION_DEV=$(VERSION_DEV)
+	$(MAKE) check frontend
+	$(MAKE) build_dev VERSION_DEV=0.0.1-test-baseline SKIP_UI_BUILD=1
+	mv bin/jetkvm_app bin/jetkvm_app_baseline
+	$(MAKE) build_dev VERSION_DEV=$(VERSION_DEV) SKIP_UI_BUILD=1
 	@echo "Running mandatory dev release validation..."
 	cd ui && npm ci && npx playwright install --with-deps chromium && cd ..
 	./scripts/test_core_e2e.sh "$(DEVICE_IP)" "bin/jetkvm_app"
-	./scripts/test_local_update.sh "$(DEVICE_IP)" "bin/jetkvm_app" "$(VERSION_DEV)"
+	./scripts/test_prerelease_unsigned_ota.sh "$(DEVICE_IP)" \
+		"bin/jetkvm_app_baseline" \
+		"bin/jetkvm_app" \
+		"$(VERSION_DEV)"
 
 	@echo "───────────────────────────────────────────────────────"
 	@echo "  All tests completed. Everything is tested and ready for release."
